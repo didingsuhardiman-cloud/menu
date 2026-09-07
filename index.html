@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Direktori File Web - Mobile</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        purple: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            200: '#ddd6fe',
+                            300: '#c4b5fd',
+                            400: '#a78bfa',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                            800: '#5b21b6',
+                            900: '#4c1d95',
+                            950: '#1e0a38',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            -webkit-tap-highlight-color: transparent;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .touch-active:active {
+            transform: scale(0.96);
+            transition: transform 0.12s ease;
+        }
+        .bottom-sheet-transition {
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .drawer-transition {
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+        .glass-card {
+            background: rgba(30, 10, 56, 0.35);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen pb-28 relative overflow-x-hidden selection:bg-purple-500 selection:text-white">
+
+    <!-- Ambient Glowing Background Bubbles -->
+    <div class="fixed -top-12 left-1/2 -translate-x-1/2 w-80 h-80 bg-purple-600/25 rounded-full blur-3xl pointer-events-none -z-10"></div>
+    <div class="fixed bottom-20 -right-10 w-64 h-64 bg-purple-800/20 rounded-full blur-3xl pointer-events-none -z-10"></div>
+    <div class="fixed top-1/3 -left-20 w-56 h-56 bg-purple-900/15 rounded-full blur-3xl pointer-events-none -z-10"></div>
+
+    <header class="sticky top-0 z-30 glass-panel border-b border-purple-900/30 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <!-- Elegant Side Drawer Toggle Button -->
+            <button onclick="toggleSideMenu()" class="w-10 h-10 rounded-xl bg-purple-950/80 border border-purple-700/40 flex items-center justify-center text-purple-300 touch-active shadow-md shadow-purple-950/50 hover:bg-purple-900/50 transition">
+                <i class="fa-solid fa-bars-staggered text-base"></i>
+            </button>
+            
+            <div>
+                <h1 class="text-base font-bold text-white tracking-tight leading-tight flex items-center gap-1.5">
+                    <span>Direktori Berkas</span>
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded-md text-[9px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">PRO</span>
+                </h1>
+                <p class="text-[11px] text-purple-300/70 font-medium"><span id="folderCount">0</span> File Siap Diakses</p>
+            </div>
+        </div>
+
+        <!-- Header Right Action Quick Icons -->
+        <div class="flex items-center space-x-2">
+            <button onclick="toggleViewMode()" id="viewToggleBtn" class="w-9 h-9 rounded-xl bg-purple-950/60 border border-purple-800/40 flex items-center justify-center text-purple-300 touch-active hover:text-white" title="Ubah Tampilan">
+                <i class="fa-solid fa-grip text-sm"></i>
+            </button>
+            <button onclick="toggleSideMenu()" class="relative w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-800 to-purple-600 border border-purple-500/40 flex items-center justify-center text-white font-bold text-xs shadow-md shadow-purple-900/40 touch-active">
+                <i class="fa-solid fa-user-astronaut text-xs"></i>
+                <span class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-slate-950"></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Side Drawer Backdrop Overlay -->
+    <div id="sideDrawerOverlay" onclick="closeSideMenu()" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 opacity-0 pointer-events-none transition-opacity duration-300"></div>
+
+    <!-- Elegant Mobile Side Drawer -->
+    <aside id="sideDrawer" class="fixed top-0 left-0 bottom-0 z-50 w-80 max-w-[85vw] bg-slate-900 border-r border-purple-800/30 transform -translate-x-full drawer-transition flex flex-col justify-between shadow-2xl overflow-y-auto no-scrollbar">
+        <div>
+            <!-- Side Drawer Header & User Profile Card -->
+            <div class="p-5 border-b border-purple-900/30 bg-gradient-to-b from-purple-950/80 to-slate-900">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-2.5">
+                        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center text-white shadow-lg shadow-purple-600/30 font-bold">
+                            <i class="fa-solid fa-folder-tree text-lg"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-sm font-bold text-white">Manager Web</h2>
+                            <p class="text-[10px] text-purple-300/70 font-mono">v2.4 Mobile Edition</p>
+                        </div>
+                    </div>
+                    <button onclick="closeSideMenu()" class="w-8 h-8 rounded-lg bg-slate-800/80 text-purple-300 hover:text-white flex items-center justify-center border border-purple-800/30 touch-active">
+                        <i class="fa-solid fa-xmark text-sm"></i>
+                    </button>
+                </div>
+
+                <!-- Mini Cloud Sync Status Badge -->
+                <div class="p-2.5 rounded-xl bg-purple-950/60 border border-purple-800/40 flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+                        <span class="text-[11px] font-medium text-purple-200">Koneksi Local Server</span>
+                    </div>
+                    <span class="text-[10px] text-purple-400 font-mono">Aktif</span>
+                </div>
+            </div>
+
+            <!-- Side Drawer Elegant Icon Menu List -->
+            <div class="p-4 space-y-5">
+                <!-- Section 1: Utama -->
+                <div>
+                    <p class="text-[10px] font-bold tracking-wider text-purple-400/80 uppercase px-2 mb-2">Navigasi Utama</p>
+                    <nav class="space-y-1">
+                        <a href="#" onclick="filterByDrawer('all'); closeSideMenu();" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl bg-purple-600/20 text-purple-200 border border-purple-500/30 font-semibold text-xs transition touch-active">
+                            <div class="w-7 h-7 rounded-lg bg-purple-600/40 flex items-center justify-center text-purple-300">
+                                <i class="fa-solid fa-hard-drive text-xs"></i>
+                            </div>
+                            <span class="flex-1">Semua Berkas Utama</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/30 text-purple-200 font-bold" id="drawerAllCount">6</span>
+                        </a>
+
+                        <a href="#" onclick="filterByDrawer('Dokumen'); closeSideMenu();" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-purple-300/80 hover:bg-purple-950/40 hover:text-white font-medium text-xs transition touch-active">
+                            <div class="w-7 h-7 rounded-lg bg-slate-800/80 flex items-center justify-center text-purple-400">
+                                <i class="fa-regular fa-file-lines text-xs"></i>
+                            </div>
+                            <span class="flex-1">Dokumen & Catatan</span>
+                            <i class="fa-solid fa-chevron-right text-[10px] text-purple-500/40"></i>
+                        </a>
+
+                        <a href="#" onclick="filterByDrawer('Proyek'); closeSideMenu();" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-purple-300/80 hover:bg-purple-950/40 hover:text-white font-medium text-xs transition touch-active">
+                            <div class="w-7 h-7 rounded-lg bg-slate-800/80 flex items-center justify-center text-purple-400">
+                                <i class="fa-solid fa-code text-xs"></i>
+                            </div>
+                            <span class="flex-1">Halaman Proyek Web</span>
+                            <i class="fa-solid fa-chevron-right text-[10px] text-purple-500/40"></i>
+                        </a>
+
+                        <a href="#" onclick="filterByDrawer('Media'); closeSideMenu();" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-purple-300/80 hover:bg-purple-950/40 hover:text-white font-medium text-xs transition touch-active">
+                            <div class="w-7 h-7 rounded-lg bg-slate-800/80 flex items-center justify-center text-purple-400">
+                                <i class="fa-regular fa-images text-xs"></i>
+                            </div>
+                            <span class="flex-1">Galeri Media</span>
+                            <i class="fa-solid fa-chevron-right text-[10px] text-purple-500/40"></i>
+                        </a>
+                    </nav>
+                </div>
+
+                <!-- Section 2: Pilihan Cepat -->
+                <div>
+                    <p class="text-[10px] font-bold tracking-wider text-purple-400/80 uppercase px-2 mb-2">Pintas & Fitur</p>
+                    <nav class="space-y-1">
+                        <button onclick="showToast('Menampilkan berkas favorit'); closeSideMenu();" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-purple-300/80 hover:bg-purple-950/40 hover:text-white font-medium text-xs transition touch-active">
+                            <div class="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+                                <i class="fa-regular fa-star text-xs"></i>
+                            </div>
+                            <span class="flex-1 text-left">File Favorit</span>
+                        </button>
+
+                        <button onclick="showToast('Riwayat akses file terbaru dibuka'); closeSideMenu();" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-purple-300/80 hover:bg-purple-950/40 hover:text-white font-medium text-xs transition touch-active">
+                            <div class="w-7 h-7 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
+                                <i class="fa-solid fa-clock-rotate-left text-xs"></i>
+                            </div>
+                            <span class="flex-1 text-left">Baru Saja Dibatasi</span>
+                        </button>
+
+                        <button onclick="openAddFileModal(); closeSideMenu();" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-purple-300/80 hover:bg-purple-950/40 hover:text-white font-medium text-xs transition touch-active">
+                            <div class="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                                <i class="fa-solid fa-plus text-xs"></i>
+                            </div>
+                            <span class="flex-1 text-left">Tambah Tautan File</span>
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- Section 3: Ringkasan Kapasitas Storage Widget -->
+                <div class="p-3.5 rounded-2xl bg-slate-950/70 border border-purple-800/30">
+                    <div class="flex items-center justify-between text-xs mb-1.5">
+                        <span class="text-purple-300 font-semibold text-[11px] flex items-center gap-1.5">
+                            <i class="fa-solid fa-database text-purple-400"></i> Kapasitas Penyimpanan
+                        </span>
+                        <span class="text-purple-400 font-mono text-[10px]">18.4 MB / 100 MB</span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden mb-1">
+                        <div class="bg-gradient-to-r from-purple-600 to-purple-400 h-full w-[18.4%] rounded-full"></div>
+                    </div>
+                    <p class="text-[9px] text-purple-300/50">Tersisa 81.6 MB ruang server lokal</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Side Drawer Footer -->
+        <div class="p-4 border-t border-purple-900/30 bg-slate-950/80 flex items-center justify-between">
+            <button onclick="showToast('Menu Preferensi Sistem'); closeSideMenu();" class="flex items-center space-x-2 text-xs text-purple-300/70 hover:text-purple-200">
+                <i class="fa-solid fa-sliders text-sm"></i>
+                <span class="font-medium">Opsi Pengaturan</span>
+            </button>
+            <span class="text-[10px] font-mono text-purple-400/50">v2.4</span>
+        </div>
+    </aside>
+
+    <main class="px-4 pt-4">
+
+        <!-- Search Input Bar with Elegant Clear Icon Button -->
+        <div class="relative mb-4">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-purple-400 text-sm"></i>
+            <input 
+                type="text" 
+                id="searchInput" 
+                oninput="filterFolders()" 
+                placeholder="Cari file html, pdf, json..." 
+                class="w-full pl-10 pr-9 py-3 rounded-2xl bg-slate-900/90 border border-purple-500/25 text-white placeholder-purple-300/40 text-xs focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 shadow-inner transition"
+            >
+            <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-purple-400 hover:text-white text-xs p-1">
+                <i class="fa-solid fa-circle-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Horizontal Scrollable Category Chips -->
+        <div class="flex items-center space-x-2 overflow-x-auto no-scrollbar pb-3 mb-2">
+            <button onclick="setCategory('all')" class="category-chip active px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-purple-600 text-white shadow-md shadow-purple-900/40 transition touch-active">
+                <i class="fa-solid fa-layer-group text-[10px] mr-1"></i> Semua File
+            </button>
+            <button onclick="setCategory('Proyek')" class="category-chip px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-slate-900 border border-purple-900/50 text-purple-200 hover:bg-purple-950 transition touch-active">
+                <i class="fa-solid fa-code text-[10px] mr-1"></i> Proyek
+            </button>
+            <button onclick="setCategory('Dokumen')" class="category-chip px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-slate-900 border border-purple-900/50 text-purple-200 hover:bg-purple-950 transition touch-active">
+                <i class="fa-regular fa-file-lines text-[10px] mr-1"></i> Dokumen
+            </button>
+            <button onclick="setCategory('Media')" class="category-chip px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-slate-900 border border-purple-900/50 text-purple-200 hover:bg-purple-950 transition touch-active">
+                <i class="fa-regular fa-image text-[10px] mr-1"></i> Media
+            </button>
+            <button onclick="setCategory('Sistem')" class="category-chip px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-slate-900 border border-purple-900/50 text-purple-200 hover:bg-purple-950 transition touch-active">
+                <i class="fa-solid fa-gears text-[10px] mr-1"></i> Sistem
+            </button>
+        </div>
+
+        <!-- Quick Status Filter Info -->
+        <div class="flex items-center justify-between mb-3 px-1">
+            <span class="text-[11px] text-purple-300/60 font-medium" id="categoryLabel">Menampilkan Semua File</span>
+            <button onclick="openAddFileModal()" class="text-[11px] text-purple-400 hover:text-purple-300 font-bold flex items-center space-x-1">
+                <i class="fa-solid fa-plus text-[10px]"></i>
+                <span>Tambah File</span>
+            </button>
+        </div>
+
+        <div id="folderContainer" class="space-y-2.5">
+            <!-- Dynamically populated via JS -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden flex-col items-center justify-center py-12 text-center">
+            <div class="w-14 h-14 rounded-2xl bg-purple-950/60 border border-purple-800/40 flex items-center justify-center text-purple-400 text-xl mb-3 shadow-inner">
+                <i class="fa-solid fa-file-circle-xmark"></i>
+            </div>
+            <p class="text-purple-200/80 text-xs font-medium">Tidak ada file yang sesuai.</p>
+            <button onclick="resetFilters()" class="mt-3 px-3 py-1.5 rounded-xl bg-purple-900/40 border border-purple-700/40 text-xs text-purple-300 font-medium touch-active">
+                <i class="fa-solid fa-arrow-rotate-left mr-1"></i> Reset Filter
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Floating Action Button (FAB) Speed Dial -->
+    <div class="fixed bottom-20 right-4 z-40 flex flex-col items-end space-y-2">
+        <!-- Speed Dial Expanded Buttons -->
+        <div id="fabMenu" class="hidden flex-col items-end space-y-2 transition-all duration-300 scale-95 opacity-0 transform origin-bottom-right">
+            <button onclick="openAddFileModal(); toggleFabMenu();" class="flex items-center space-x-2 bg-slate-900 border border-purple-500/40 text-purple-200 px-3 py-2 rounded-xl text-xs shadow-xl touch-active">
+                <span>Tambah Link File</span>
+                <div class="w-8 h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center">
+                    <i class="fa-solid fa-file-circle-plus text-xs"></i>
+                </div>
+            </button>
+
+            <button onclick="showToast('Memindai tautan kode QR file'); toggleFabMenu();" class="flex items-center space-x-2 bg-slate-900 border border-purple-500/40 text-purple-200 px-3 py-2 rounded-xl text-xs shadow-xl touch-active">
+                <span>Pindai QR File</span>
+                <div class="w-8 h-8 rounded-lg bg-purple-800 text-white flex items-center justify-center">
+                    <i class="fa-solid fa-qrcode text-xs"></i>
+                </div>
+            </button>
+
+            <button onclick="resetFilters(); toggleFabMenu();" class="flex items-center space-x-2 bg-slate-900 border border-purple-500/40 text-purple-200 px-3 py-2 rounded-xl text-xs shadow-xl touch-active">
+                <span>Muat Ulang Daftar</span>
+                <div class="w-8 h-8 rounded-lg bg-indigo-700 text-white flex items-center justify-center">
+                    <i class="fa-solid fa-rotate text-xs"></i>
+                </div>
+            </button>
+        </div>
+
+        <!-- Main FAB Trigger Button -->
+        <button id="fabMainBtn" onclick="toggleFabMenu()" class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-700 via-purple-600 to-indigo-500 text-white flex items-center justify-center shadow-lg shadow-purple-700/50 border border-purple-400/30 touch-active transition-transform duration-300">
+            <i id="fabIcon" class="fa-solid fa-bolt text-base"></i>
+        </button>
+    </div>
+
+    <!-- Bottom Sheet Modal for Quick Actions -->
+    <div id="bottomSheetOverlay" onclick="closeBottomSheet()" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-40 opacity-0 pointer-events-none transition-opacity duration-300"></div>
+    <div id="bottomSheet" class="fixed bottom-0 left-0 right-0 z-50 bg-slate-900 border-t border-purple-500/30 rounded-t-3xl p-5 transform translate-y-full bottom-sheet-transition max-w-md mx-auto">
+        <!-- Sheet Handle -->
+        <div class="w-10 h-1 bg-purple-800/60 rounded-full mx-auto mb-4"></div>
+        
+        <!-- File Info Card -->
+        <div class="flex items-center space-x-3 mb-5 pb-4 border-b border-purple-900/30">
+            <div id="sheetIcon" class="w-12 h-12 rounded-2xl bg-purple-950 border border-purple-700/50 flex items-center justify-center text-purple-300 text-xl shadow-inner">
+                <i class="fa-solid fa-file"></i>
+            </div>
+            <div class="flex-1 overflow-hidden">
+                <h3 id="sheetTitle" class="font-bold text-white text-base truncate">Nama File</h3>
+                <p id="sheetPath" class="text-xs font-mono text-purple-300/70 truncate">./halaman.html</p>
+                <div class="flex items-center space-x-2 mt-1">
+                    <span id="sheetBadge" class="text-[9px] px-2 py-0.5 rounded-md bg-purple-900/50 border border-purple-700/40 text-purple-300 font-medium">Kategori</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Icons Grid -->
+        <div class="grid grid-cols-4 gap-2 mb-4">
+            <a id="sheetOpenBtn" href="#" class="flex flex-col items-center justify-center p-3 rounded-xl bg-purple-950/60 border border-purple-800/40 text-purple-200 hover:bg-purple-900 transition touch-active">
+                <i class="fa-solid fa-arrow-up-right-from-square text-base mb-1 text-purple-400"></i>
+                <span class="text-[10px] font-medium">Buka</span>
+            </a>
+            <button id="sheetCopyBtn" onclick="" class="flex flex-col items-center justify-center p-3 rounded-xl bg-purple-950/60 border border-purple-800/40 text-purple-200 hover:bg-purple-900 transition touch-active">
+                <i class="fa-regular fa-copy text-base mb-1 text-purple-400"></i>
+                <span class="text-[10px] font-medium">Salin</span>
+            </button>
+            <button onclick="shareFile()" class="flex flex-col items-center justify-center p-3 rounded-xl bg-purple-950/60 border border-purple-800/40 text-purple-200 hover:bg-purple-900 transition touch-active">
+                <i class="fa-solid fa-share-nodes text-base mb-1 text-purple-400"></i>
+                <span class="text-[10px] font-medium">Bagikan</span>
+            </button>
+            <button onclick="showToast('File disimpan ke daftar Favorit!'); closeBottomSheet();" class="flex flex-col items-center justify-center p-3 rounded-xl bg-purple-950/60 border border-purple-800/40 text-purple-200 hover:bg-purple-900 transition touch-active">
+                <i class="fa-regular fa-star text-base mb-1 text-amber-400"></i>
+                <span class="text-[10px] font-medium">Favorit</span>
+            </button>
+        </div>
+
+        <button onclick="closeBottomSheet()" class="w-full py-2.5 rounded-xl bg-slate-800/80 text-center text-xs text-purple-300 font-medium touch-active">
+            Tutup Menu
+        </button>
+    </div>
+
+    <!-- Modal Form Tambah File Baru -->
+    <div id="addFileModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-slate-900 border border-purple-500/30 rounded-3xl p-5 w-full max-w-sm shadow-2xl space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-purple-900/40">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-file-circle-plus text-purple-400"></i>
+                    <span>Tambah File Baru</span>
+                </h3>
+                <button onclick="closeAddFileModal()" class="text-purple-400 hover:text-white text-sm">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-[11px] text-purple-300/80 font-medium mb-1">Nama Berkas (misal: kontak.html)</label>
+                    <input type="text" id="newFileName" placeholder="halaman-baru.html" class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-purple-800/50 text-xs text-white placeholder-purple-300/30 focus:outline-none focus:border-purple-500">
+                </div>
+
+                <div>
+                    <label class="block text-[11px] text-purple-300/80 font-medium mb-1">Path URL / Lokasi</label>
+                    <input type="text" id="newFilePath" placeholder="./pages/halaman-baru.html" class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-purple-800/50 text-xs text-white placeholder-purple-300/30 focus:outline-none focus:border-purple-500 font-mono">
+                </div>
+
+                <div>
+                    <label class="block text-[11px] text-purple-300/80 font-medium mb-1">Kategori File</label>
+                    <select id="newFileCat" class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-purple-800/50 text-xs text-purple-200 focus:outline-none focus:border-purple-500">
+                        <option value="Proyek">Proyek Web (.html)</option>
+                        <option value="Dokumen">Dokumen (.pdf/.docx)</option>
+                        <option value="Media">Media (.jpg/.png/.mp4)</option>
+                        <option value="Sistem">Sistem (.json/.config)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] text-purple-300/80 font-medium mb-1">Deskripsi Singkat</label>
+                    <input type="text" id="newFileDesc" placeholder="Keterangan singkat berkas..." class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-purple-800/50 text-xs text-white placeholder-purple-300/30 focus:outline-none focus:border-purple-500">
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-2 pt-2">
+                <button onclick="closeAddFileModal()" class="w-1/2 py-2.5 rounded-xl bg-slate-800 text-xs text-purple-300 font-semibold touch-active">Batal</button>
+                <button onclick="saveNewFile()" class="w-1/2 py-2.5 rounded-xl bg-gradient-to-r from-purple-700 to-purple-600 text-xs text-white font-semibold shadow-lg shadow-purple-900/50 touch-active">Simpan File</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 left-0 right-0 z-30 glass-panel border-t border-purple-900/30 px-6 py-2.5 max-w-md mx-auto">
+        <div class="flex items-center justify-around">
+            <button onclick="setCategory('all'); resetFilters();" class="flex flex-col items-center text-purple-400 touch-active">
+                <i class="fa-solid fa-folder-closed text-base mb-0.5"></i>
+                <span class="text-[10px] font-semibold">Berkas</span>
+            </button>
+            <button onclick="focusSearch()" class="flex flex-col items-center text-purple-300/50 hover:text-purple-300 touch-active">
+                <i class="fa-solid fa-magnifying-glass text-base mb-0.5"></i>
+                <span class="text-[10px] font-medium">Cari</span>
+            </button>
+            <button onclick="toggleSideMenu()" class="flex flex-col items-center text-purple-300/50 hover:text-purple-300 touch-active">
+                <i class="fa-solid fa-compass text-base mb-0.5"></i>
+                <span class="text-[10px] font-medium">Menu</span>
+            </button>
+            <button onclick="openAddFileModal()" class="flex flex-col items-center text-purple-300/50 hover:text-purple-300 touch-active">
+                <i class="fa-solid fa-circle-plus text-base mb-0.5"></i>
+                <span class="text-[10px] font-medium">Tambah</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Toast Notification -->
+    <div id="toast" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 transform -translate-y-10 opacity-0 pointer-events-none transition-all duration-300 bg-purple-900/95 border border-purple-500/40 text-white px-4 py-2.5 rounded-full shadow-2xl backdrop-blur-md flex items-center space-x-2 text-xs font-medium w-auto max-w-[90%]">
+        <i class="fa-solid fa-circle-check text-purple-300 text-sm"></i>
+        <span id="toastMessage" class="truncate">Pesan Notifikasi</span>
+    </div>
+
+    <script>
+        // Initial File Data List
+        const folders = [
+            {
+                id: 1,
+                name: "index.html",
+                category: "Proyek",
+                path: "./index.html",
+                desc: "Halaman beranda utama situs web.",
+                icon: "fa-file-code",
+                badgeColor: "text-emerald-400 bg-emerald-950/60 border-emerald-800/40"
+            },
+            {
+                id: 2,
+                name: "tentang-kami.html",
+                category: "Dokumen",
+                path: "./tentang-kami.html",
+                desc: "Halaman informasi profil dan profil perusahaan.",
+                icon: "fa-file-lines",
+                badgeColor: "text-sky-400 bg-sky-950/60 border-sky-800/40"
+            },
+            {
+                id: 3,
+                name: "galeri-kegiatan.html",
+                category: "Media",
+                path: "./galeri-kegiatan.html",
+                desc: "Tampilan album foto dan dokumentasi media.",
+                icon: "fa-file-image",
+                badgeColor: "text-purple-400 bg-purple-950/60 border-purple-800/40"
+            },
+            {
+                id: 4,
+                name: "laporan-keuangan-2026.pdf",
+                category: "Dokumen",
+                path: "./documents/laporan-2026.pdf",
+                desc: "Berkas neraca keuangan format PDF terenkripsi.",
+                icon: "fa-file-pdf",
+                badgeColor: "text-rose-400 bg-rose-950/60 border-rose-800/40"
+            },
+            {
+                id: 5,
+                name: "formulir-kontak.html",
+                category: "Proyek",
+                path: "./formulir-kontak.html",
+                desc: "Halaman kontak dan pengirim pesan pengguna.",
+                icon: "fa-file-waveform",
+                badgeColor: "text-amber-400 bg-amber-950/60 border-amber-800/40"
+            },
+            {
+                id: 6,
+                name: "config-database.json",
+                category: "Sistem",
+                path: "./system/config-database.json",
+                desc: "Pengaturan koneksi data dan preferensi server.",
+                icon: "fa-file-gear",
+                badgeColor: "text-indigo-400 bg-indigo-950/60 border-indigo-800/40"
+            }
+        ];
+
+        let activeCategory = 'all';
+        let isGridView = false;
+        let selectedFolder = null;
+        let isFabOpen = false;
+
+        // Render File Cards List or Grid View
+        function renderFolders() {
+            const container = document.getElementById('folderContainer');
+            const emptyState = document.getElementById('emptyState');
+            const searchVal = document.getElementById('searchInput').value.toLowerCase();
+            
+            const filtered = folders.filter(f => {
+                const matchesCat = (activeCategory === 'all' || f.category === activeCategory);
+                const matchesSearch = f.name.toLowerCase().includes(searchVal) || 
+                                      f.path.toLowerCase().includes(searchVal) || 
+                                      f.desc.toLowerCase().includes(searchVal);
+                return matchesCat && matchesSearch;
+            });
+
+            document.getElementById('folderCount').innerText = filtered.length;
+            document.getElementById('drawerAllCount').innerText = folders.length;
+            container.innerHTML = '';
+
+            if (filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+                emptyState.classList.remove('flex');
+            }
+
+            if (isGridView) {
+                container.className = "grid grid-cols-2 gap-3";
+            } else {
+                container.className = "space-y-2.5";
+            }
+
+            filtered.forEach(folder => {
+                const card = document.createElement('div');
+                
+                if (isGridView) {
+                    card.className = "bg-slate-900/80 border border-purple-900/40 rounded-2xl p-3.5 flex flex-col justify-between touch-active relative shadow-md";
+                    card.innerHTML = `
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="w-9 h-9 rounded-xl bg-purple-950 border border-purple-800/50 flex items-center justify-center text-purple-300">
+                                    <i class="fa-solid ${folder.icon} text-sm"></i>
+                                </div>
+                                <button onclick="openBottomSheet(${folder.id})" class="p-1 text-purple-300/50 hover:text-purple-200">
+                                    <i class="fa-solid fa-ellipsis-vertical text-xs"></i>
+                                </button>
+                            </div>
+                            <h3 class="font-bold text-white text-xs mb-1 line-clamp-1">${folder.name}</h3>
+                            <p class="text-[10px] text-purple-300/60 line-clamp-2 leading-tight mb-2">${folder.desc}</p>
+                        </div>
+                        <div class="pt-2 border-t border-purple-900/30 flex items-center justify-between">
+                            <span class="text-[9px] font-mono text-purple-300/50 truncate max-w-[60%]">${folder.path}</span>
+                            <a href="${folder.path}" class="w-6 h-6 rounded-lg bg-purple-700 text-white flex items-center justify-center text-[10px]">
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    `;
+                } else {
+                    card.className = "bg-slate-900/80 border border-purple-900/40 rounded-2xl p-3 flex items-center justify-between touch-active shadow-sm";
+                    card.innerHTML = `
+                        <div class="flex items-center space-x-3 overflow-hidden pr-2 cursor-pointer" onclick="openBottomSheet(${folder.id})">
+                            <div class="w-10 h-10 rounded-xl bg-purple-950 border border-purple-800/50 flex-shrink-0 flex items-center justify-center text-purple-300">
+                                <i class="fa-solid ${folder.icon} text-base"></i>
+                            </div>
+                            <div class="overflow-hidden">
+                                <div class="flex items-center gap-2">
+                                    <h3 class="font-bold text-white text-xs truncate">${folder.name}</h3>
+                                    <span class="text-[9px] px-1.5 py-0.2 rounded border ${folder.badgeColor || 'text-purple-300 bg-purple-950 border-purple-800'} font-medium">${folder.category}</span>
+                                </div>
+                                <p class="text-[10px] font-mono text-purple-300/60 truncate mt-0.5">${folder.path}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-1.5 flex-shrink-0">
+                            <button onclick="copyPath('${folder.path}')" class="p-2 text-purple-300/60 hover:text-purple-200 rounded-xl bg-purple-950/40 border border-purple-900/40">
+                                <i class="fa-regular fa-copy text-xs"></i>
+                            </button>
+                            <a href="${folder.path}" class="p-2 text-white bg-purple-700 hover:bg-purple-600 rounded-xl shadow-sm">
+                                <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                            </a>
+                        </div>
+                    `;
+                }
+                
+                container.appendChild(card);
+            });
+        }
+
+        // Side Drawer Menu Toggle Functions
+        function toggleSideMenu() {
+            const drawer = document.getElementById('sideDrawer');
+            const overlay = document.getElementById('sideDrawerOverlay');
+            
+            if (drawer.classList.contains('-translate-x-full')) {
+                drawer.classList.remove('-translate-x-full');
+                overlay.classList.remove('opacity-0', 'pointer-events-none');
+            } else {
+                closeSideMenu();
+            }
+        }
+
+        function closeSideMenu() {
+            const drawer = document.getElementById('sideDrawer');
+            const overlay = document.getElementById('sideDrawerOverlay');
+            
+            drawer.classList.add('-translate-x-full');
+            overlay.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        function filterByDrawer(cat) {
+            setCategory(cat);
+            showToast(`Menampilkan file kategori: ${cat === 'all' ? 'Semua' : cat}`);
+        }
+
+        // Search & Filter Functions
+        function filterFolders() {
+            const input = document.getElementById('searchInput');
+            const clearBtn = document.getElementById('clearSearchBtn');
+            if (input.value.length > 0) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+            renderFolders();
+        }
+
+        function clearSearch() {
+            const input = document.getElementById('searchInput');
+            input.value = '';
+            document.getElementById('clearSearchBtn').classList.add('hidden');
+            renderFolders();
+        }
+
+        function focusSearch() {
+            const input = document.getElementById('searchInput');
+            input.focus();
+        }
+
+        function setCategory(cat) {
+            activeCategory = cat;
+            
+            const chips = document.querySelectorAll('.category-chip');
+            chips.forEach(chip => {
+                if ((cat === 'all' && chip.textContent.includes('Semua')) || chip.textContent.includes(cat)) {
+                    chip.className = "category-chip active px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-purple-600 text-white shadow-md shadow-purple-900/40 transition touch-active";
+                } else {
+                    chip.className = "category-chip px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-slate-900 border border-purple-900/50 text-purple-200 hover:bg-purple-950 transition touch-active";
+                }
+            });
+
+            document.getElementById('categoryLabel').innerText = cat === 'all' ? 'Menampilkan Semua File' : `Filter Kategori: ${cat}`;
+            renderFolders();
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            setCategory('all');
+        }
+
+        function toggleViewMode() {
+            isGridView = !isGridView;
+            const btn = document.getElementById('viewToggleBtn');
+            btn.innerHTML = isGridView ? '<i class="fa-solid fa-list text-sm"></i>' : '<i class="fa-solid fa-grip text-sm"></i>';
+            renderFolders();
+        }
+
+        // Floating Action Button Speed Dial Toggle
+        function toggleFabMenu() {
+            const menu = document.getElementById('fabMenu');
+            const btn = document.getElementById('fabMainBtn');
+            const icon = document.getElementById('fabIcon');
+
+            isFabOpen = !isFabOpen;
+
+            if (isFabOpen) {
+                menu.classList.remove('hidden');
+                setTimeout(() => {
+                    menu.classList.remove('scale-95', 'opacity-0');
+                    menu.classList.add('scale-100', 'opacity-100');
+                }, 10);
+                btn.classList.add('rotate-45', 'bg-rose-600');
+                icon.className = "fa-solid fa-plus text-base";
+            } else {
+                menu.classList.remove('scale-100', 'opacity-100');
+                menu.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    menu.classList.add('hidden');
+                }, 300);
+                btn.classList.remove('rotate-45', 'bg-rose-600');
+                icon.className = "fa-solid fa-bolt text-base";
+            }
+        }
+
+        // Bottom Action Sheet Modal
+        function openBottomSheet(id) {
+            selectedFolder = folders.find(f => f.id === id);
+            if (!selectedFolder) return;
+
+            document.getElementById('sheetTitle').innerText = selectedFolder.name;
+            document.getElementById('sheetPath').innerText = selectedFolder.path;
+            document.getElementById('sheetBadge').innerText = selectedFolder.category;
+            document.getElementById('sheetOpenBtn').href = selectedFolder.path;
+            document.getElementById('sheetCopyBtn').setAttribute('onclick', `copyPath('${selectedFolder.path}'); closeBottomSheet();`);
+            document.getElementById('sheetIcon').innerHTML = `<i class="fa-solid ${selectedFolder.icon}"></i>`;
+
+            const sheet = document.getElementById('bottomSheet');
+            const overlay = document.getElementById('bottomSheetOverlay');
+
+            overlay.classList.remove('opacity-0', 'pointer-events-none');
+            sheet.classList.remove('translate-y-full');
+        }
+
+        function closeBottomSheet() {
+            const sheet = document.getElementById('bottomSheet');
+            const overlay = document.getElementById('bottomSheetOverlay');
+
+            sheet.classList.add('translate-y-full');
+            overlay.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        // Modal Form Add File Logic
+        function openAddFileModal() {
+            const modal = document.getElementById('addFileModal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function closeAddFileModal() {
+            const modal = document.getElementById('addFileModal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        function saveNewFile() {
+            const name = document.getElementById('newFileName').value.trim();
+            const path = document.getElementById('newFilePath').value.trim();
+            const cat = document.getElementById('newFileCat').value;
+            const desc = document.getElementById('newFileDesc').value.trim() || 'Berkas baru ditambahkan.';
+
+            if (!name || !path) {
+                showToast("Mohon isi nama dan path berkas!");
+                return;
+            }
+
+            let icon = "fa-file-code";
+            let badgeColor = "text-purple-400 bg-purple-950/60 border-purple-800/40";
+            if (cat === "Dokumen") { icon = "fa-file-pdf"; badgeColor = "text-rose-400 bg-rose-950/60 border-rose-800/40"; }
+            if (cat === "Media") { icon = "fa-file-image"; badgeColor = "text-amber-400 bg-amber-950/60 border-amber-800/40"; }
+            if (cat === "Sistem") { icon = "fa-file-gear"; badgeColor = "text-indigo-400 bg-indigo-950/60 border-indigo-800/40"; }
+
+            const newFileObj = {
+                id: Date.now(),
+                name: name,
+                category: cat,
+                path: path,
+                desc: desc,
+                icon: icon,
+                badgeColor: badgeColor
+            };
+
+            folders.unshift(newFileObj);
+            renderFolders();
+            closeAddFileModal();
+
+            // Clear inputs
+            document.getElementById('newFileName').value = '';
+            document.getElementById('newFilePath').value = '';
+            document.getElementById('newFileDesc').value = '';
+
+            showToast(`Berkas ${name} berhasil ditambahkan!`);
+        }
+
+        // Copy Clipboard Helper
+        function copyPath(text) {
+            const tempInput = document.createElement('input');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            showToast(`Path file "${text}" disalin!`);
+        }
+
+        function shareFile() {
+            if (selectedFolder) {
+                copyPath(selectedFolder.path);
+                showToast(`Tautan file siap dibagikan!`);
+            }
+            closeBottomSheet();
+        }
+
+        // Toast Helper
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.innerText = message;
+            toast.classList.remove('-translate-y-10', 'opacity-0', 'pointer-events-none');
+            
+            setTimeout(() => {
+                toast.classList.add('-translate-y-10', 'opacity-0', 'pointer-events-none');
+            }, 2300);
+        }
+
+        // Initialization
+        window.onload = function() {
+            renderFolders();
+        };
+    </script>
+</body>
+</html>
