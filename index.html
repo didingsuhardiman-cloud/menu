@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Direktori Folder Web - Mobile</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        purple: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            200: '#ddd6fe',
+                            300: '#c4b5fd',
+                            400: '#a78bfa',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                            800: '#5b21b6',
+                            900: '#4c1d95',
+                            950: '#1e0a38',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        .touch-active:active {
+            transform: scale(0.97);
+            transition: transform 0.1s ease;
+        }
+        .bottom-sheet-transition {
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen pb-24 relative overflow-x-hidden selection:bg-purple-500 selection:text-white">
+
+    <!-- Ambient Purple Mobile Background Glow -->
+    <div class="fixed -top-10 left-1/2 -translate-x-1/2 w-80 h-80 bg-purple-600/25 rounded-full blur-3xl pointer-events-none -z-10"></div>
+    <div class="fixed bottom-10 -right-10 w-60 h-60 bg-purple-800/20 rounded-full blur-3xl pointer-events-none -z-10"></div>
+
+    <!-- Mobile App Header Bar -->
+    <header class="sticky top-0 z-30 bg-slate-950/80 backdrop-blur-md border-b border-purple-900/30 px-4 py-3.5 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-700 to-purple-500 flex items-center justify-center text-white shadow-md shadow-purple-600/30">
+                <i class="fa-solid fa-folder-tree text-lg"></i>
+            </div>
+            <div>
+                <h1 class="text-base font-bold text-white tracking-tight leading-tight">Direktori Web</h1>
+                <p class="text-[11px] text-purple-300/70 font-medium"><span id="folderCount">0</span> Folder Tersimpan</p>
+            </div>
+        </div>
+
+        <!-- Right Header Action -->
+        <div class="flex items-center space-x-2">
+            <button onclick="toggleViewMode()" id="viewToggleBtn" class="w-9 h-9 rounded-xl bg-purple-950/60 border border-purple-800/40 flex items-center justify-center text-purple-300 touch-active" title="Ubah Tampilan">
+                <i class="fa-solid fa-grip text-sm"></i>
+            </button>
+            <div class="w-9 h-9 rounded-xl bg-purple-900/40 border border-purple-700/40 flex items-center justify-center text-purple-300 font-bold text-xs">
+                <i class="fa-solid fa-user-gear text-xs"></i>
+            </div>
+        </div>
+    </header>
+
+    <main class="px-4 pt-4">
+
+        <!-- Search Input Bar -->
+        <div class="relative mb-4">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-purple-400 text-sm"></i>
+            <input 
+                type="text" 
+                id="searchInput" 
+                oninput="filterFolders()" 
+                placeholder="Cari folder atau path..." 
+                class="w-full pl-10 pr-9 py-3 rounded-xl bg-slate-900/90 border border-purple-500/20 text-white placeholder-purple-300/40 text-xs focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 shadow-inner transition"
+            >
+            <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-purple-400 hover:text-white text-xs p-1">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Horizontal Scrollable Category Chips -->
+        <div class="flex items-center space-x-2 overflow-x-auto no-scrollbar pb-3 mb-3">
+            <button onclick="setCategory('all')" class="category-chip active px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-purple-600 text-white shadow-sm transition touch-active">
+                <i class="fa-solid fa-layer-group text-[10px] mr-1"></i> Semua
+            </button>
+            <button onclick="setCategory('Dokumen')" class="category-chip px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-slate-900 border border-purple-900/50 text-purple-200 hover:bg-purple-950 transition touch-active">
+                <i class="fa-regular fa-file-lines text-[10px] mr-1"></i> Dokumen
+            </button>
+            <button onclick="setCategory('Media')" class="category-chip px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-slate-900 border border-purple-900/50 text-purple-200 hover:bg-purple-950 transition touch-active">
+                <i class="fa-regular fa-image text-[10px] mr-1"></i> Media
+            </button>
+            <button onclick="setCategory('Proyek')" class="category-chip px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-slate-900 border border-purple-900/50 text-purple-200 hover:bg-purple-950 transition touch-active">
+                <i class="fa-solid fa-code text-[10px] mr-1"></i> Proyek
+            </button>
+            <button onclick="setCategory('Sistem')" class="category-chip px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-slate-900 border border-purple-900/50 text-purple-200 hover:bg-purple-950 transition touch-active">
+                <i class="fa-solid fa-server text-[10px] mr-1"></i> Sistem
+            </button>
+        </div>
+
+        <!-- Folder Items Container (Grid or List view) -->
+        <div id="folderContainer" class="space-y-3">
+            <!-- Dynamically populated via JS -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden flex-col items-center justify-center py-12 text-center">
+            <div class="w-14 h-14 rounded-full bg-purple-950/60 border border-purple-800/40 flex items-center justify-center text-purple-400 text-xl mb-3">
+                <i class="fa-solid fa-folder-minus"></i>
+            </div>
+            <p class="text-purple-200/80 text-xs font-medium">Tidak ada folder ditemukan.</p>
+            <button onclick="resetFilters()" class="mt-3 text-xs text-purple-400 underline font-medium">Reset Pencarian</button>
+        </div>
+
+    </main>
+
+    <!-- Bottom Sheet Modal for Quick Actions -->
+    <div id="bottomSheetOverlay" onclick="closeBottomSheet()" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-40 opacity-0 pointer-events-none transition-opacity duration-300"></div>
+    <div id="bottomSheet" class="fixed bottom-0 left-0 right-0 z-50 bg-slate-900 border-t border-purple-500/30 rounded-t-3xl p-5 transform translate-y-full bottom-sheet-transition max-w-md mx-auto">
+        <!-- Sheet Pull Handle -->
+        <div class="w-10 h-1 bg-purple-800/60 rounded-full mx-auto mb-4"></div>
+        
+        <!-- Folder Info Header -->
+        <div class="flex items-center space-x-3 mb-5 pb-4 border-b border-purple-900/30">
+            <div id="sheetIcon" class="w-12 h-12 rounded-2xl bg-purple-950 border border-purple-700/50 flex items-center justify-center text-purple-300 text-xl">
+                <i class="fa-solid fa-folder"></i>
+            </div>
+            <div class="flex-1 overflow-hidden">
+                <h3 id="sheetTitle" class="font-bold text-white text-base truncate">Nama Folder</h3>
+                <p id="sheetPath" class="text-xs font-mono text-purple-300/70 truncate">./path/</p>
+            </div>
+        </div>
+
+        <!-- Quick Action Buttons -->
+        <div class="space-y-2.5">
+            <a id="sheetOpenBtn" href="#" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-purple-700 to-purple-600 active:from-purple-600 active:to-purple-500 text-white font-semibold text-xs flex items-center justify-center space-x-2 shadow-lg shadow-purple-950 touch-active">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                <span>Buka Folder Sekarang</span>
+            </a>
+            <button id="sheetCopyBtn" onclick="" class="w-full py-3 px-4 rounded-xl bg-purple-950/80 border border-purple-800/50 text-purple-200 font-semibold text-xs flex items-center justify-center space-x-2 touch-active">
+                <i class="fa-regular fa-copy"></i>
+                <span>Salin Path Ke Clipboard</span>
+            </button>
+            <button onclick="closeBottomSheet()" class="w-full py-2.5 text-center text-xs text-purple-300/60 font-medium">
+                Batal
+            </button>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 left-0 right-0 z-30 bg-slate-950/90 backdrop-blur-lg border-t border-purple-900/30 px-6 py-2 max-w-md mx-auto">
+        <div class="flex items-center justify-around">
+            <button class="flex flex-col items-center text-purple-400 touch-active">
+                <i class="fa-solid fa-folder-tree text-base mb-0.5"></i>
+                <span class="text-[10px] font-semibold">Folder</span>
+            </button>
+            <button onclick="focusSearch()" class="flex flex-col items-center text-purple-300/50 hover:text-purple-300 touch-active">
+                <i class="fa-solid fa-magnifying-glass text-base mb-0.5"></i>
+                <span class="text-[10px] font-medium">Cari</span>
+            </button>
+            <button onclick="showToast('Fitur Favorit disimpan di penyimpanan lokal')" class="flex flex-col items-center text-purple-300/50 hover:text-purple-300 touch-active">
+                <i class="fa-regular fa-star text-base mb-0.5"></i>
+                <span class="text-[10px] font-medium">Favorit</span>
+            </button>
+            <button onclick="showToast('Menu Pengaturan Direktori Mobile')" class="flex flex-col items-center text-purple-300/50 hover:text-purple-300 touch-active">
+                <i class="fa-solid fa-sliders text-base mb-0.5"></i>
+                <span class="text-[10px] font-medium">Opsi</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Toast Notification -->
+    <div id="toast" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 transform -translate-y-10 opacity-0 pointer-events-none transition-all duration-300 bg-purple-900/90 border border-purple-500/40 text-white px-4 py-2.5 rounded-full shadow-2xl backdrop-blur-md flex items-center space-x-2 text-xs font-medium w-auto max-w-[90%]">
+        <i class="fa-solid fa-circle-check text-purple-300 text-sm"></i>
+        <span id="toastMessage" class="truncate">Pesan Notifikasi</span>
+    </div>
+
+    <script>
+        // Data Folder Web
+        const folders = [
+            {
+                id: 1,
+                name: "Dokumen & Arsip",
+                category: "Dokumen",
+                path: "./documents/",
+                desc: "Berkas PDF resmi, laporan, dan surat digital.",
+                icon: "fa-folder-closed"
+            },
+            {
+                id: 2,
+                name: "Galeri & Media",
+                category: "Media",
+                path: "./media/images/",
+                desc: "Aset foto, gambar, ikon, dan banner.",
+                icon: "fa-images"
+            },
+            {
+                id: 3,
+                name: "Proyek & Source Code",
+                category: "Proyek",
+                path: "./projects/",
+                desc: "Skrip HTML, CSS, JavaScript, dan komponen web.",
+                icon: "fa-code"
+            },
+            {
+                id: 4,
+                name: "Berkas Unduhan",
+                category: "Dokumen",
+                path: "./downloads/",
+                desc: "Folder publik untuk file sampel dan attachment.",
+                icon: "fa-download"
+            },
+            {
+                id: 5,
+                name: "Laporan Keuangan",
+                category: "Dokumen",
+                path: "./reports/2026/",
+                desc: "Rekapitulasi anggaran dan laporan kas bulanan.",
+                icon: "fa-chart-pie"
+            },
+            {
+                id: 6,
+                name: "Sistem & Backup",
+                category: "Sistem",
+                path: "./system/backup/",
+                desc: "Log server, basis data, dan berkas cadangan.",
+                icon: "fa-server"
+            }
+        ];
+
+        let activeCategory = 'all';
+        let isGridView = false;
+        let selectedFolder = null;
+
+        function renderFolders() {
+            const container = document.getElementById('folderContainer');
+            const emptyState = document.getElementById('emptyState');
+            const searchVal = document.getElementById('searchInput').value.toLowerCase();
+            
+            const filtered = folders.filter(f => {
+                const matchesCat = (activeCategory === 'all' || f.category === activeCategory);
+                const matchesSearch = f.name.toLowerCase().includes(searchVal) || 
+                                      f.path.toLowerCase().includes(searchVal) || 
+                                      f.desc.toLowerCase().includes(searchVal);
+                return matchesCat && matchesSearch;
+            });
+
+            document.getElementById('folderCount').innerText = filtered.length;
+            container.innerHTML = '';
+
+            if (filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+                emptyState.classList.remove('flex');
+            }
+
+            // Set grid or list layout
+            if (isGridView) {
+                container.className = "grid grid-cols-2 gap-3";
+            } else {
+                container.className = "space-y-2.5";
+            }
+
+            filtered.forEach(folder => {
+                const card = document.createElement('div');
+                
+                if (isGridView) {
+                    // Mobile Grid View Card Layout
+                    card.className = "bg-slate-900/80 border border-purple-900/40 rounded-2xl p-3.5 flex flex-col justify-between touch-active relative group";
+                    card.innerHTML = `
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="w-9 h-9 rounded-xl bg-purple-950 border border-purple-800/50 flex items-center justify-center text-purple-400">
+                                    <i class="fa-solid ${folder.icon} text-sm"></i>
+                                </div>
+                                <button onclick="openBottomSheet(${folder.id})" class="p-1.5 text-purple-300/50 hover:text-purple-300">
+                                    <i class="fa-solid fa-ellipsis-vertical text-xs"></i>
+                                </button>
+                            </div>
+                            <h3 class="font-bold text-white text-xs mb-1 line-clamp-1">${folder.name}</h3>
+                            <p class="text-[10px] text-purple-300/60 line-clamp-2 leading-tight mb-2">${folder.desc}</p>
+                        </div>
+                        <div class="pt-2 border-t border-purple-900/30 flex items-center justify-between">
+                            <span class="text-[9px] font-mono text-purple-300/50 truncate max-w-[65%]">${folder.path}</span>
+                            <a href="${folder.path}" class="w-6 h-6 rounded-lg bg-purple-700 text-white flex items-center justify-center text-[10px]">
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    `;
+                } else {
+                    // Mobile List View Row Layout
+                    card.className = "bg-slate-900/80 border border-purple-900/40 rounded-xl p-3 flex items-center justify-between touch-active";
+                    card.innerHTML = `
+                        <div class="flex items-center space-x-3 overflow-hidden pr-2" onclick="openBottomSheet(${folder.id})">
+                            <div class="w-10 h-10 rounded-xl bg-purple-950 border border-purple-800/50 flex-shrink-0 flex items-center justify-center text-purple-400">
+                                <i class="fa-solid ${folder.icon} text-base"></i>
+                            </div>
+                            <div class="overflow-hidden">
+                                <h3 class="font-bold text-white text-xs truncate">${folder.name}</h3>
+                                <p class="text-[10px] font-mono text-purple-300/60 truncate">${folder.path}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-1.5 flex-shrink-0">
+                            <button onclick="copyPath('${folder.path}')" class="p-2 text-purple-300/60 hover:text-purple-300 rounded-lg bg-purple-950/40 border border-purple-900/40">
+                                <i class="fa-regular fa-copy text-xs"></i>
+                            </button>
+                            <a href="${folder.path}" class="p-2 text-white bg-purple-700 rounded-lg shadow-sm">
+                                <i class="fa-solid fa-arrow-right text-xs"></i>
+                            </a>
+                        </div>
+                    `;
+                }
+                
+                container.appendChild(card);
+            });
+        }
+
+        function filterFolders() {
+            const input = document.getElementById('searchInput');
+            const clearBtn = document.getElementById('clearSearchBtn');
+            if (input.value.length > 0) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+            renderFolders();
+        }
+
+        function clearSearch() {
+            const input = document.getElementById('searchInput');
+            input.value = '';
+            document.getElementById('clearSearchBtn').classList.add('hidden');
+            renderFolders();
+        }
+
+        function focusSearch() {
+            const input = document.getElementById('searchInput');
+            input.focus();
+        }
+
+        function setCategory(cat) {
+            activeCategory = cat;
+            
+            // Update Chip UI
+            const chips = document.querySelectorAll('.category-chip');
+            chips.forEach(chip => {
+                if ((cat === 'all' && chip.textContent.includes('Semua')) || chip.textContent.includes(cat)) {
+                    chip.className = "category-chip active px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-purple-600 text-white shadow-sm transition touch-active";
+                } else {
+                    chip.className = "category-chip px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-slate-900 border border-purple-900/50 text-purple-200 hover:bg-purple-950 transition touch-active";
+                }
+            });
+
+            renderFolders();
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            setCategory('all');
+        }
+
+        function toggleViewMode() {
+            isGridView = !isGridView;
+            const btn = document.getElementById('viewToggleBtn');
+            btn.innerHTML = isGridView ? '<i class="fa-solid fa-list text-sm"></i>' : '<i class="fa-solid fa-grip text-sm"></i>';
+            renderFolders();
+        }
+
+        function openBottomSheet(id) {
+            selectedFolder = folders.find(f => f.id === id);
+            if (!selectedFolder) return;
+
+            document.getElementById('sheetTitle').innerText = selectedFolder.name;
+            document.getElementById('sheetPath').innerText = selectedFolder.path;
+            document.getElementById('sheetOpenBtn').href = selectedFolder.path;
+            document.getElementById('sheetCopyBtn').setAttribute('onclick', `copyPath('${selectedFolder.path}'); closeBottomSheet();`);
+            document.getElementById('sheetIcon').innerHTML = `<i class="fa-solid ${selectedFolder.icon}"></i>`;
+
+            const sheet = document.getElementById('bottomSheet');
+            const overlay = document.getElementById('bottomSheetOverlay');
+
+            overlay.classList.remove('opacity-0', 'pointer-events-none');
+            sheet.classList.remove('translate-y-full');
+        }
+
+        function closeBottomSheet() {
+            const sheet = document.getElementById('bottomSheet');
+            const overlay = document.getElementById('bottomSheetOverlay');
+
+            sheet.classList.add('translate-y-full');
+            overlay.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        function copyPath(text) {
+            const tempInput = document.createElement('input');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            showToast(`Path "${text}" disalin!`);
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.innerText = message;
+            toast.classList.remove('-translate-y-10', 'opacity-0', 'pointer-events-none');
+            
+            setTimeout(() => {
+                toast.classList.add('-translate-y-10', 'opacity-0', 'pointer-events-none');
+            }, 2300);
+        }
+
+        // Initial Mobile Load
+        window.onload = function() {
+            renderFolders();
+        };
+    </script>
+</body>
+</html>
