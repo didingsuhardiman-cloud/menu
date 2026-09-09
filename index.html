@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>D'SABOGANA Menu Web</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Custom Mobile Scrollbar & Touch Optimization */
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .light .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+        /* Mobile Touch Ripple Simulation */
+        .touch-active:active {
+            transform: scale(0.97);
+            transition: transform 0.1s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col transition-colors duration-300 antialiased selection:bg-amber-500 selection:text-slate-950">
+
+    <!-- Background Gradient Glow (Optimized for OLED & Mobile displays) -->
+    <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div class="absolute -top-24 left-1/2 -translate-x-1/2 w-80 h-80 bg-amber-500/15 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-10 -right-20 w-72 h-72 bg-amber-600/10 rounded-full blur-3xl"></div>
+    </div>
+
+    <!-- Notification Toast (Positioned nicely at bottom for mobile thumbs) -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-2.5 bg-slate-800/95 backdrop-blur-md text-white px-5 py-3 rounded-full shadow-2xl border border-amber-500/30 text-xs sm:text-sm font-medium w-[90%] max-w-xs justify-center text-center">
+        <i class="fa-solid fa-circle-check text-amber-400 text-base"></i>
+        <span id="toast-message">Tautan berhasil disalin!</span>
+    </div>
+
+    <!-- Mobile-First Sticky Header -->
+    <header class="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/80">
+        <div class="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+            <!-- Brand Logo & Name -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-600 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg shadow-amber-500/20">
+                    D
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-lg font-bold tracking-tight text-white flex items-center gap-2">
+                        D'SABOGANA
+                    </h1>
+                    <p class="text-[11px] text-amber-400 font-medium tracking-wide">WEB MENU PORTAL</p>
+                </div>
+            </div>
+
+            <!-- Header Mobile Actions -->
+            <div class="flex items-center gap-2">
+                <button onclick="openQrModal()" class="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 transition-all border border-slate-800 touch-active" title="Bagikan QR Code">
+                    <i class="fa-solid fa-qrcode text-amber-400"></i>
+                </button>
+                <button id="theme-toggle" class="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 transition-all border border-slate-800 touch-active" title="Ubah Mode">
+                    <i class="fa-solid fa-sun text-amber-400 dark:hidden"></i>
+                    <i class="fa-solid fa-moon hidden dark:block text-slate-300"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-4xl w-full mx-auto px-4 py-5 z-10 space-y-5">
+        
+        <!-- Mobile Hero Card -->
+        <div class="glass-card rounded-2xl p-5 sm:p-6 relative overflow-hidden shadow-xl">
+            <div class="relative z-10">
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-semibold mb-3">
+                    <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                    Portal Resmi D'SABOGANA
+                </div>
+                <h2 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight mb-1.5">
+                    Pusat Akses Layanan & Informasi
+                </h2>
+                <p class="text-slate-400 text-xs sm:text-sm leading-relaxed mb-4 max-w-md">
+                    Pilih menu atau halaman web di bawah ini untuk menuju ke layanan resmi kami.
+                </p>
+                
+                <!-- Search Input Optimized for Mobile Typing -->
+                <div class="relative w-full">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" id="search-input" placeholder="Cari menu, medsos, atau layanan..." 
+                        class="w-full pl-11 pr-10 py-3 text-sm bg-slate-900/90 border border-slate-700/80 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-white placeholder-slate-500 transition-all shadow-inner">
+                    <button id="clear-search" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1 text-xs">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Swipeable Categories (Horizontal Scroll for Mobile Thumbs) -->
+        <div class="space-y-2">
+            <div class="flex items-center justify-between text-xs px-1 text-slate-400 font-medium">
+                <span>Kategori Utama</span>
+                <span id="link-count">0 Tautan</span>
+            </div>
+            
+            <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 -mx-4 px-4 sm:mx-0 sm:px-0" id="category-tabs">
+                <!-- Categories dynamically loaded by JS -->
+            </div>
+        </div>
+
+        <!-- Links Card Grid (Single Column on Mobile, 2-Cols on Tablet, 3-Cols on Desktop) -->
+        <div id="links-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+            <!-- Cards generated dynamically -->
+        </div>
+
+        <!-- Empty Search Result Card -->
+        <div id="empty-state" class="hidden flex-col items-center justify-center py-12 text-center glass-card rounded-2xl p-6">
+            <div class="w-14 h-14 bg-slate-900 rounded-2xl flex items-center justify-center text-slate-500 text-xl mb-3 border border-slate-800">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+            <h3 class="text-sm font-semibold text-slate-200 mb-1">Tautan Tidak Ditemukan</h3>
+            <p class="text-slate-400 text-xs mb-4">Coba cari dengan kata kunci lain.</p>
+            <button id="reset-search-btn" class="px-4 py-2 rounded-xl text-xs font-semibold bg-amber-500 text-slate-950 touch-active">
+                Tampilkan Semua
+            </button>
+        </div>
+    </main>
+
+    <!-- QR Code Share Modal -->
+    <div id="qr-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="glass-card max-w-xs w-full rounded-2xl p-6 text-center space-y-4 shadow-2xl relative border border-slate-800">
+            <button onclick="closeQrModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div class="w-12 h-12 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mx-auto text-xl border border-amber-500/20">
+                <i class="fa-solid fa-qrcode"></i>
+            </div>
+            <div>
+                <h3 class="text-base font-bold text-white">Bagikan Menu</h3>
+                <p class="text-xs text-slate-400 mt-1">Pindai QR Code ini untuk membuka halaman web di HP lain.</p>
+            </div>
+            <!-- Dynamic Placeholder QR -->
+            <div class="bg-white p-3 rounded-xl inline-block shadow-md">
+                <img id="qr-image" src="" alt="QR Code D'SABOGANA" class="w-40 h-40 mx-auto">
+            </div>
+            <button onclick="copyCurrentUrl()" class="w-full py-2.5 rounded-xl bg-amber-500 text-slate-950 text-xs font-semibold touch-active">
+                <i class="fa-solid fa-link mr-1.5"></i> Salin Link Halaman Ini
+            </button>
+        </div>
+    </div>
+
+    <!-- Mobile Friendly Footer -->
+    <footer class="mt-auto border-t border-slate-900 bg-slate-950/90 py-5 text-center text-xs text-slate-500">
+        <div class="max-w-4xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <p>© 2026 D'SABOGANA. All Rights Reserved.</p>
+            <p class="text-[11px] text-slate-600">Dikembangkan untuk Tampilan Mobile & Desktop</p>
+        </div>
+    </footer>
+
+    <script>
+        /* 
+         ==================================================================
+         * CARA MENGEDIT TAUTAN MENU (SANGAT MUDAH):
+         * Cukup ubah/tambah daftar di bawah ini.
+         * 
+         * Contoh Format Item:
+         * {
+         *    title: "Judul Halaman / Menu",
+         *    url: "https://tautan-tujuan.com",
+         *    desc: "Deskripsi singkat.",
+         *    category: "Pilih Kategori (misal: Utama / Layanan / Medsos)",
+         *    icon: "Ikon FontAwesome (misal: fa-globe, fa-whatsapp, dll)",
+         *    badge: "Label Opsional (misal: Resmi / Promo / Baru)"
+         * }
+         ==================================================================
+        */
+        const linksData = [
+            {
+                title: 'Website Utama D\'SABOGANA',
+                url: 'https://example.com',
+                desc: 'Halaman profil resmi, informasi produk, dan tentang usaha kami.',
+                category: 'Utama',
+                icon: 'fa-solid fa-globe',
+                badge: 'Resmi'
+            },
+            {
+                title: 'Katalog & Menu Makanan',
+                url: 'https://example.com/menu',
+                desc: 'Daftar menu lezat, varian harga terbaru, dan rekomendasi spesial.',
+                category: 'Layanan',
+                icon: 'fa-solid fa-utensils',
+                badge: 'Favorit'
+            },
+            {
+                title: 'Pemesanan via WhatsApp',
+                url: 'https://wa.me/6281234567890',
+                desc: 'Hubungi admin langsung untuk pemesanan cepat dan reservasi.',
+                category: 'Layanan',
+                icon: 'fa-brands fa-whatsapp',
+                badge: 'Fast Response'
+            },
+            {
+                title: 'Instagram Resmi',
+                url: 'https://instagram.com',
+                desc: 'Galeri foto produk menarik, update promo, dan kegiatan usaha.',
+                category: 'Media Sosial',
+                icon: 'fa-brands fa-instagram',
+                badge: 'Update'
+            },
+            {
+                title: 'TikTok D\'SABOGANA',
+                url: 'https://tiktok.com',
+                desc: 'Konten video seru, review kuliner, dan promo khusus TikTok.',
+                category: 'Media Sosial',
+                icon: 'fa-brands fa-tiktok',
+                badge: 'Video'
+            },
+            {
+                title: 'Petunjuk Lokasi Maps',
+                url: 'https://maps.google.com',
+                desc: 'Buka lokasi outlet di Google Maps untuk petunjuk arah.',
+                category: 'Lokasi',
+                icon: 'fa-solid fa-location-dot',
+                badge: 'Peta'
+            },
+            {
+                title: 'Portal Admin / Kasir',
+                url: 'https://example.com/admin',
+                desc: 'Akses khusus manajemen internal, laporan, dan sistem transaksi.',
+                category: 'Internal',
+                icon: 'fa-solid fa-user-lock',
+                badge: 'Khusus'
+            }
+        ];
+
+        let activeCategory = 'Semua';
+        let searchQuery = '';
+
+        const linksGrid = document.getElementById('links-grid');
+        const emptyState = document.getElementById('empty-state');
+        const categoryTabs = document.getElementById('category-tabs');
+        const searchInput = document.getElementById('search-input');
+        const clearSearchBtn = document.getElementById('clear-search');
+        const linkCount = document.getElementById('link-count');
+        const resetSearchBtn = document.getElementById('reset-search-btn');
+
+        // Extract Unique Categories
+        function getCategories() {
+            const categories = ['Semua'];
+            linksData.forEach(item => {
+                if (item.category && !categories.includes(item.category)) {
+                    categories.push(item.category);
+                }
+            });
+            return categories;
+        }
+
+        // Render Swipeable Category Tabs
+        function renderCategories() {
+            const categories = getCategories();
+            categoryTabs.innerHTML = '';
+
+            categories.forEach(cat => {
+                const isActive = cat === activeCategory;
+                const btn = document.createElement('button');
+                btn.className = `px-4 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap touch-active ${
+                    isActive
+                        ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                        : 'bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-800'
+                }`;
+                btn.textContent = cat;
+                btn.onclick = () => {
+                    activeCategory = cat;
+                    renderCategories();
+                    renderLinks();
+                };
+                categoryTabs.appendChild(btn);
+            });
+        }
+
+        // Render Cards Grid for Mobile & Desktop
+        function renderLinks() {
+            const filtered = linksData.filter(item => {
+                const matchCat = activeCategory === 'Semua' || item.category === activeCategory;
+                const matchSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                    item.desc.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                    item.category.toLowerCase().includes(searchQuery.toLowerCase());
+                return matchCat && matchSearch;
+            });
+
+            linkCount.textContent = `${filtered.length} Tautan`;
+
+            if (filtered.length === 0) {
+                linksGrid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            emptyState.classList.remove('flex');
+
+            linksGrid.innerHTML = filtered.map(item => `
+                <div class="glass-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between transition-all duration-200 hover:border-amber-500/40 touch-active group">
+                    <div>
+                        <!-- Card Header -->
+                        <div class="flex items-start justify-between gap-3 mb-2.5">
+                            <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-lg border border-amber-500/20 group-hover:bg-amber-500 group-hover:text-slate-950 transition-colors shrink-0">
+                                <i class="${item.icon || 'fa-solid fa-link'}"></i>
+                            </div>
+                            ${item.badge ? `
+                                <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-slate-900 text-amber-400 border border-slate-800 shrink-0">
+                                    ${escapeHtml(item.badge)}
+                                </span>
+                            ` : ''}
+                        </div>
+
+                        <!-- Title & Description -->
+                        <h3 class="font-bold text-white text-sm sm:text-base mb-1 group-hover:text-amber-400 transition-colors leading-snug">
+                            ${escapeHtml(item.title)}
+                        </h3>
+                        <p class="text-xs text-slate-400 leading-relaxed mb-3 line-clamp-2">
+                            ${escapeHtml(item.desc)}
+                        </p>
+                    </div>
+
+                    <!-- Footer Action Buttons (Touch Friendly Area) -->
+                    <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between mt-auto gap-2">
+                        <span class="text-[11px] text-slate-500 font-medium truncate">
+                            ${escapeHtml(item.category)}
+                        </span>
+                        
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            <button onclick="copyLink('${escapeHtml(item.url)}')" class="px-2.5 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all text-xs border border-slate-800 active:bg-slate-700" title="Salin Tautan">
+                                <i class="fa-solid fa-copy mr-1"></i> Salin
+                            </button>
+                            <a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 transition-all shadow-sm active:scale-95">
+                                Buka <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Utility: Escape HTML
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        // Copy Link to Clipboard
+        function copyLink(url) {
+            const temp = document.createElement('input');
+            temp.value = url;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+
+            showToast('Tautan berhasil disalin!');
+        }
+
+        function copyCurrentUrl() {
+            copyLink(window.location.href);
+            closeQrModal();
+        }
+
+        // Show Mobile Toast Notification
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = msg;
+            toast.classList.remove('opacity-0', 'translate-y-24', 'pointer-events-none');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-24', 'pointer-events-none');
+            }, 2200);
+        }
+
+        // QR Code Modal Functions
+        function openQrModal() {
+            const currentUrl = encodeURIComponent(window.location.href);
+            document.getElementById('qr-image').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${currentUrl}`;
+            const modal = document.getElementById('qr-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeQrModal() {
+            const modal = document.getElementById('qr-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Dark/Light Mode Toggle
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+        });
+
+        // Search Handlers
+        searchInput.addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            if (searchQuery.length > 0) {
+                clearSearchBtn.classList.remove('hidden');
+            } else {
+                clearSearchBtn.classList.add('hidden');
+            }
+            renderLinks();
+        });
+
+        clearSearchBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            searchQuery = '';
+            clearSearchBtn.classList.add('hidden');
+            renderLinks();
+        });
+
+        resetSearchBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            searchQuery = '';
+            activeCategory = 'Semua';
+            clearSearchBtn.classList.add('hidden');
+            renderCategories();
+            renderLinks();
+        });
+
+        // Close Modal on Outside Click
+        document.getElementById('qr-modal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('qr-modal')) {
+                closeQrModal();
+            }
+        });
+
+        // Initialize App on Load
+        window.onload = function() {
+            renderCategories();
+            renderLinks();
+        };
+    </script>
+</body>
+</html>
